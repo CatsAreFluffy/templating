@@ -1,6 +1,8 @@
-const express = require('express');
+var express = require('express');
+const bodyparser = require('body-parser');
 const fs = require('fs');
-const app = express();
+var app = express();
+var express_ws = require('express-ws')(app);
 const base = fs.readFileSync("./client/base.html", 'utf8');
 const nav = fs.readFileSync("./client/nav.html", 'utf8');
 const routes = JSON.parse(fs.readFileSync("./routes.json", 'utf8'));
@@ -11,6 +13,10 @@ for (var i in routes){
 
 app.use(express.static('public'));
 
+app.get('/messages', function(req, res) {
+    res.send(parse(routes["/"], false));
+})
+
 app.get('*', function(req, res) {
     
     if (!(req.path in routes)){
@@ -20,8 +26,24 @@ app.get('*', function(req, res) {
     }
 })
 
+app.ws("*", function(ws, req) {
+    console.log("Websocket connection")
+    ws.on('message',function(msg){
+        console.log(msg)
+    })
+    ws.send("Connected")
+})
+
+app.use(bodyparser.urlencoded({ extended: false }));
+app.use(bodyparser.json());
+
+app.post("*", function(req, res) {
+    console.log(req.body.message.replace("<","&lt;"))
+    res.end("Message recieved")
+})
+
 app.listen(process.env.PORT || 3000, function() {
-    console.log('Example app listening on port '+process.env.PORT || "3000"+"!");
+    console.log('Example app listening on port '+(process.env.PORT||"3000")+"!");
 })
 
 function parse(route, logged) {
