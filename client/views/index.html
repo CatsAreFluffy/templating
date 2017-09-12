@@ -1,1 +1,22 @@
-testing
+Websocket testing
+<script>
+function testsocket(){
+	console.log("Here!")
+	var socket=new WebSocket("ws://localhost:3000/sendmessage","sendMessage")
+	socket.onopen=function(event){
+		//socket.send("critical data")
+		//console.log("sent")
+	}
+	socket.onmessage=function(event){
+		console.log(event.data)
+		return false
+	}
+	socket.onclose=function(event){
+		console.log("Socket closed")
+		console.log(event)
+	}
+	console.log(socket.readyState)
+	return socket
+}
+document.addEventListener("load",testsocket)
+</script>
